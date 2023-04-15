@@ -1,481 +1,730 @@
+import argparse
 import sys
 import os
-import struct
+import json
+import math
+
 import numpy as np
-from OpenGL.GL import *
-from OpenGL.GL import shaders
-from PyQt6.QtWidgets import QApplication, QMainWindow, QOpenGLWidget
-from PyQt6.QtCore import QTimer
-from PIL import Image
+import pyglet
 
+class TroyPreviewer:
 
-class TroyLoader:
-    def __init__(self, filename):
-        self.filename = filename
-        self.e = []
-        self.p = []
+    def __init__(self, troy_file, model_dir=None, img_dir=None):
+        self.troy_file = troy_file
+        self.model_dir = model_dir
+        self.img_dir = img_dir
 
-        with open(filename, 'rb') as f:
-            while True:
-                section_size = struct.unpack("<i", f.read(4))[0]
-                if section_size == -1:
-                    break
-                section_type = f.read(4)
-                if section_type == b'TXPT':
-                    self.load_txpt(f)
-                elif section_type == b'ETPT':
-                    self.load_etpt(f)
-                elif section_type == b'PTPT':
-                    self.load_ptpt(f)
+        self.load_troy()
+        self.setup_window()
 
-    def load_txpt(self, f):
+    def load_troy(self):
+        # TODO: Implement troy file loading
         pass
 
-    def load_etpt(self, f):
-        e = {}
-        e['name'] = self.read_string(f)
-        e['rgba'] = self.read_ubyte4(f)
-        e['rate'] = self.read_float(f)
-        e['life'] = self.read_float(f)
-        e['timeoffset'] = self.read_float(f)
-        e['disabled'] = self.read_bool(f)
-        e['alpharef'] = self.read_int(f)
-        e['rgbaAP1'] = self.read_float2(f)
-        e['rgbaAP2'] = self.read_float2(f)
-        e['rotation1-axis'] = self.read_float3(f)
-        e['rotation2-axis'] = self.read_float3(f)
-        e['p-bindtoemitter'] = self.read_float2(f)
-        self.e.append(e)
+    def setup_window(self):
+        # TODO: Implement window setup
+        pass
 
-    def load_ptpt(self, f):
-        data = f.read(8)
-        num_particles, unknown = struct.unpack('<II', data)
-        self.log(f"Loading PTPT with {num_particles} particles")
-        particles = []
-        for i in range(num_particles):
-            p = {}
-            p['x'] = self.read_float3(f)
-            p['scale'] = self.read_float3(f)
-            p['rgba'] = self.read_rgba(f)
-            p['life'] = self.read_float(f)
-            p['linger'] = self.read_float(f)
-            p['rotation1'] = self.read_float3(f)
-            p['rotation2'] = self.read_float3(f)
-            p['unknown1'] = self.read_float(f)
-            p['unknown2'] = self.read_float(f)
-            p['backfaceon'] = self.read_bool(f)
-            p['bindtoemitter'] = self.read_float2(f)
-            p['type'] = self.read_int(f)
-            p['fresnel'] = self.read_float(f)
-            p['fresnel_color'] = self.read_rgba(f)
-            p['scaleP1'] = self.read_float2(f)
-            p['scaleP2'] = self.read_float2(f)
-            p['lifeP1'] = self.read_float2(f)
-            p['lifeP2'] = self.read_float2(f)
-            p['quadrot'] = self.read_float3(f)
-            p['quadrotYP1'] = self.read_float2(f)
-            p['quadrotYP2'] = self.read_float2(f)
-            p['unknown3'] = self.read_int(f)
-            p['unknown4'] = self.read_int(f)
-            p['unknown5'] = self.read_int(f)
-            p['xrgba'] = self.read_rgba(f)
-            p['xrgba1'] = self.read_xrgba(f)
-            p['xrgba2'] = self.read_xrgba(f)
-            p['xrgba3'] = self.read_xrgba(f)
-            p['xrgba4'] = self.read_xrgba(f)
-            p['xrgba5'] = self.read_xrgba(f)
-            p['xrgba6'] = self.read_xrgba(f)
-            p['reflection_fresnel_color'] = self.read_rgba(f)
-            p['reflection_opacity_glancing'] = self.read_float(f)
-            p['unknown6'] = self.read_bool(f)
-            p['rotvel'] = self.read_float3(f)
-            p['rotvelYP1'] = self.read_float2(f)
-            p['rotvelYP2'] = self.read_float2(f)
-            p['mesh'] = self.read_string(f)
-            p['meshtex'] = self.read_string(f)
-            p['unknown7'] = self.read_int(f)
-            p['unknown8'] = self.read_int(f)
-            p['unknown9'] = self.read_int(f)
-            particles.append(p)
-        return particles
+if __name__ == '__main__':
+    parser = argparse.ArgumentParser(description='Preview League of Legends .troy files.')
+    parser.add_argument('troy_file', type=str, help='input .troy file name')
+    parser.add_argument('--model_dir', type=str, help='directory containing 3D models used in particles')
+    parser.add_argument('--img_dir', type=str, help='directory containing images used in particles')
+    args = parser.parse_args()
 
-class TroyViewer(QMainWindow):
-    def init(self):
-        super().init()
-        self.setWindowTitle("Troy Viewer")
-        self.setGeometry(100, 100, 1280, 720)
-        self.troyloader = None
-        self.current_emitter = None
-        self.current_particle = None
-        self.current_frame = 0
-        self.glwidget = GLWidget(self)
-        self.setCentralWidget(self.glwidget)
+    previewer = TroyPreviewer(args.troy_file, args.model_dir, args.img_dir)
+    pyglet.app.run()
 
-        # Create menus
-        self.file_menu = self.menuBar().addMenu("File")
-        self.edit_menu = self.menuBar().addMenu("Edit")
-        self.help_menu = self.menuBar().addMenu("Help")
+def read_troy(troy_file_path):
+    with open(troy_file_path, 'rb') as f:
+        data = f.read()
 
-        # Create actions
-        self.open_action = self.file_menu.addAction("Open")
-        self.exit_action = self.file_menu.addAction("Exit")
+    magic_number = struct.unpack('i', data[:4])[0]
+    if magic_number != 0x13579:
+        raise ValueError('Invalid magic number')
 
-        # Connect actions to functions
-        self.open_action.triggered.connect(self.open_file)
-        self.exit_action.triggered.connect(self.close)
+    version = struct.unpack('i', data[4:8])[0]
+    if version != 2:
+        raise ValueError('Invalid version number')
 
-        # Create toolbar
-        self.toolbar = self.addToolBar("Tools")
-        self.play_action = self.toolbar.addAction("Play")
-        self.pause_action = self.toolbar.addAction("Pause")
-        self.stop_action = self.toolbar.addAction("Stop")
-        self.prev_frame_action = self.toolbar.addAction("Prev Frame")
-        self.next_frame_action = self.toolbar.addAction("Next Frame")
+    header_length = struct.unpack('i', data[8:12])[0]
+    header_data = data[12:12+header_length]
 
-        # Connect toolbar actions to functions
-        self.play_action.triggered.connect(self.play)
-        self.pause_action.triggered.connect(self.pause)
-        self.stop_action.triggered.connect(self.stop)
-        self.prev_frame_action.triggered.connect(self.prev_frame)
-        self.next_frame_action.triggered.connect(self.next_frame)
+    header = json.loads(header_data)
 
-        # Create status bar
-        self.statusBar().showMessage("Ready")
+    return header, data[12+header_length:]
 
-        # Create timer for animation
-        self.timer = QTimer()
-        self.timer.setInterval(1000 // 60)
-        self.timer.timeout.connect(self.update_animation)
+def preview_troy(troy_file_path, image_path, model_path):
+    header, particle_data = read_troy(troy_file_path)
 
-    def open_file(self):
-        filename, _ = QFileDialog.getOpenFileName(self, "Open Troy File", "", "Troy Files (*.troy)")
-        if filename:
-            self.troyloader = TroyLoader(filename)
-            self.current_emitter = self.troyloader.e[0]
-            self.current_particle = self.troyloader.p[0]
-            self.glwidget.load_mesh(self.current_particle['mesh'], self.current_particle['meshtex'])
-            self.timer.start()
+    image = pyglet.image.load(image_path)
+    model = pyglet.model.load(model_path)
 
-    def play(self):
-        self.timer.start()
+    window = pyglet.window.Window(header['ParticleWidth'], header['ParticleHeight'], caption='Troy Preview')
+    glClearColor(0, 0, 0, 1)
 
-    def pause(self):
-        self.timer.stop()
+    particle_batch = pyglet.graphics.Batch()
 
-    def stop(self):
-        self.timer.stop()
-        self.current_frame = 0
-        self.glwidget.set_frame(self.current_frame)
+    for particle in header['Particles']:
+        sprite = pyglet.sprite.Sprite(image, batch=particle_batch)
 
-    def prev_frame(self):
-        self.current_frame -= 1
-        if self.current_frame < 0:
-            self.current_frame = 0
-        self.glwidget.set_frame(self.current_frame)
+        x, y, z = particle['Position']
+        sprite.position = (x, y)
+        sprite.scale = particle['Scale']
+        sprite.opacity = particle['Alpha']
 
-    def next_frame(self):
-        self.current_frame += 1
-        if self.current_frame > self.current_particle['num_particles']:
-            self.current_frame = self.current_particle['num_particles']
-        self.glwidget.set_frame(self.current_frame)
+        rotation_x, rotation_y, rotation_z = particle['Rotation']
+        sprite.rotation = -rotation_z  # convert from clockwise to counterclockwise rotation
 
-    def update_animation(self):
-        self.current_frame += 1
-        if self.current_frame >= self.current_particle['num_particles']:
-            self.current_frame = 0
-        self.glwidget.set_frame(self.current_frame)
+        particle_model = pyglet.model.add_simple_model(1.0, 1.0, 1.0, model, batch=particle_batch)
 
-class GLWidget(QOpenGLWidget):
-    def __init__(self, parent=None):
-        super().__init__(parent)
+        particle_model.position = (x, y, z)
+        particle_model.scale = particle['Scale']
+        particle_model.opacity = particle['Alpha']
+        particle_model.rotation_x = rotation_x
+        particle_model.rotation_y = rotation_y
+        particle_model.rotation_z = rotation_z
 
-        self.program = None
+    @window.event
+    def on_draw():
+        glClear(GL_COLOR_BUFFER_BIT)
+        particle_batch.draw()
+
+    pyglet.app.run()
+
+window = pyglet.window.Window(resizable=True)
+
+batch = pyglet.graphics.Batch()
+particle_sprites = []
+
+# Define the vertex list for a particle
+def create_particle_vertex_list(position, size):
+    x, y, z = position
+    size_x, size_y = size
+    return batch.add(4, GL_QUADS, None, ('v3f', [
+        x - size_x / 2, y - size_y / 2, z,
+        x + size_x / 2, y - size_y / 2, z,
+        x + size_x / 2, y + size_y / 2, z,
+        x - size_x / 2, y + size_y / 2, z]), ('c4B', [255, 255, 255, 255] * 4))
+
+# Load the textures for the particles
+def load_particle_textures(textures):
+    loaded_textures = {}
+    for name, path in textures.items():
+        loaded_textures[name] = pyglet.image.load(path).texture
+    return loaded_textures
+
+# Load the 3D models for the particles
+def load_particle_models(models):
+    loaded_models = {}
+    for name, path in models.items():
+        loaded_models[name] = pyglet.resource.model(path)
+    return loaded_models
+
+# Define a class to hold the information about a single particle
+class Particle:
+    def __init__(self, name, attributes):
+        self.name = name
+        self.attributes = attributes
         self.texture = None
-        self.vao = None
-        self.vbo = None
+        self.model = None
+        self.sprite = None
+        self.update_sprite()
 
-        self.proj_mat = np.eye(4, dtype=np.float32)
-        self.view_mat = np.eye(4, dtype=np.float32)
-        self.model_mat = np.eye(4, dtype=np.float32)
+    # Update the sprite for this particle based on its current attributes
+    def update_sprite(self):
+        if self.sprite is not None:
+            self.sprite.delete()
 
-        self.timer = QTimer()
-        self.timer.setInterval(16)
-        self.timer.timeout.connect(self.update)
-        self.timer.start()
+        # Get the position and size of the particle
+        position = (self.attributes["Position"]["X"], self.attributes["Position"]["Y"], self.attributes["Position"]["Z"])
+        size = (self.attributes["Size"]["X"], self.attributes["Size"]["Y"])
 
-    def initializeGL(self):
-        self.program = self.create_program()
-        self.texture = self.load_texture('particle.png')
-        self.vao, self.vbo = self.create_buffers()
-        glEnable(GL_BLEND)
-        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
-        glClearColor(0.0, 0.0, 0.0, 1.0)
+        # Create a new sprite for the particle
+        if self.attributes["RenderType"] == "Billboard":
+            self.texture = self.texture or loaded_textures[self.attributes["TextureName"]]
+            self.sprite = pyglet.sprite.Sprite(self.texture, *position, batch=batch)
+            self.sprite.scale_x = size[0] / self.texture.width
+            self.sprite.scale_y = size[1] / self.texture.height
+        elif self.attributes["RenderType"] == "Model":
+            self.model = self.model or loaded_models[self.attributes["ModelName"]]
+            self.sprite = pyglet.sprite.Sprite(self.model, *position, batch=batch)
+            self.sprite.scale = self.attributes["ModelScale"]
+        elif self.attributes["RenderType"] == "Beam":
+            pass # TODO: Implement beam rendering
+        else:
+            raise Exception("Unknown RenderType: {}".format(self.attributes["RenderType"]))
 
-    def resizeGL(self, width, height):
-        glViewport(0, 0, width, height)
-        self.proj_mat = self.create_proj_matrix(45.0, width / height, 0.1, 100.0)
+    # Set a new attribute value for this particle
+    def set_attribute(self, name, value):
+        self.attributes[name] = value
+        self.update_sprite()
 
-    def paintGL(self):
+
+    # Set up window and OpenGL context
+    win = pyglet.window.Window(800, 600, caption='Troy Preview')
+    glClearColor(0, 0, 0, 1)
+    glEnable(GL_BLEND)
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
+
+    # Load particle textures
+    particle_textures = {}
+    for texture_name in textures:
+        texture_path = os.path.join(args.texture_dir, texture_name + ".png")
+        particle_textures[texture_name] = image.load(texture_path).texture
+
+    # Set up particle batch
+    particle_batch = pyglet.graphics.Batch()
+
+    # Load particle data
+    with open(args.troy_file, "rb") as f:
+        troy_data = f.read()
+
+    particle_data = troybin.read(io.BytesIO(troy_data))
+
+    # Create particle sprites
+    particles = []
+    for particle in particle_data:
+        texture_name = particle["Texture"]
+        texture = particle_textures[texture_name]
+        x, y, z = particle["Position"]
+        size = particle["Size"]
+        angle = particle["Angle"]
+        particles.append(pyglet.sprite.Sprite(texture, x=x, y=y, batch=particle_batch))
+
+    # Set up camera
+    camera_x = 0
+    camera_y = 0
+    camera_z = 0
+    camera_rot_x = 0
+    camera_rot_y = 0
+
+    # Set up keyboard/mouse input
+    keys = pyglet.window.key.KeyStateHandler()
+    win.push_handlers(keys)
+    mouse = pyglet.window.mouse
+    win.set_mouse_visible(False)
+
+    # Set up update function
+    def update(dt):
+        global camera_x, camera_y, camera_z, camera_rot_x, camera_rot_y
+        if keys[pyglet.window.key.W]:
+            camera_x += 100 * dt * math.sin(math.radians(camera_rot_y))
+            camera_z += 100 * dt * math.cos(math.radians(camera_rot_y))
+        if keys[pyglet.window.key.S]:
+            camera_x -= 100 * dt * math.sin(math.radians(camera_rot_y))
+            camera_z -= 100 * dt * math.cos(math.radians(camera_rot_y))
+        if keys[pyglet.window.key.A]:
+            camera_x += 100 * dt * math.sin(math.radians(camera_rot_y - 90))
+            camera_z += 100 * dt * math.cos(math.radians(camera_rot_y - 90))
+        if keys[pyglet.window.key.D]:
+            camera_x += 100 * dt * math.sin(math.radians(camera_rot_y + 90))
+            camera_z += 100 * dt * math.cos(math.radians(camera_rot_y + 90))
+        if keys[pyglet.window.key.SPACE]:
+            camera_y += 100 * dt
+        if keys[pyglet.window.key.LSHIFT]:
+            camera_y -= 100 * dt
+        dx, dy = mouse.get_delta()
+        camera_rot_x += dy * 0.1
+        camera_rot_y -= dx * 0.1
+        camera_rot_x = max(min(camera_rot_x, 90), -90)
+        glLoadIdentity()
+        glTranslatef(-camera_x, -camera_y, -camera_z)
+        glRotatef(camera_rot_x, 1, 0, 0)
+        glRotatef(camera_rot_y, 0, 1, 0)
+
+    # Set up drawing function
+    def draw():
+        win.clear()
+        particle_batch.draw()
+
+    # Run main loop
+    pyglet.clock.schedule_interval(update, 1/60)
+    pyglet.app.run()
+
+    # Load the 3D model of the particle
+    particle_model = pyglet.resource.model('particle.obj')
+
+    # Load the image to be used as a texture
+    particle_texture = pyglet.resource.image('particle_texture.png')
+
+    # Create the batch for the particles
+    particle_batch = pyglet.graphics.Batch()
+
+    # Create a list of particle instances
+    particles = []
+
+    # Create a function to add a particle to the batch
+    def add_particle(x, y, z):
+        particle = pyglet.graphics.Batch()
+        particle.add(len(particle_model.vertex_lists), pyglet.gl.GL_TRIANGLES, None,
+            ('v3f', particle_model.vertices),
+            ('t2f', particle_model.tex_coords)
+        )
+        particles.append((x, y, z, particle))
+
+    # Call the function to add particles at various positions
+    add_particle(0, 0, 0)
+    add_particle(1, 0, 0)
+    add_particle(0, 1, 0)
+    add_particle(0, 0, 1)
+
+    # Create a function to update the positions of the particles
+    def update_particles(dt):
+        pass  # TODO: Implement this function
+
+    # Create the window
+    window = pyglet.window.Window(width=800, height=600, caption='Particle Preview')
+
+    # Set up the camera
+    camera_pos = Vector4([0, 0, -5, 1])
+    camera_rot = Vector4([0, 0, 0, 1])
+    view = Matrix44.look_at(
+        camera_pos.xyz,
+        [0, 0, 0],
+        [0, 1, 0]
+    )
+    projection = Matrix44.perspective_projection(45.0, window.width / window.height, 0.1, 100.0)
+
+    # Set up the OpenGL context
+    glClearColor(0.0, 0.0, 0.0, 1.0)
+    glEnable(GL_DEPTH_TEST)
+    glEnable(GL_TEXTURE_2D)
+    glEnable(GL_BLEND)
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
+
+    # Set up the event loop
+    @window.event
+    def on_draw():
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
+        glMatrixMode(GL_PROJECTION)
+        glLoadIdentity()
+        glMultMatrixf(projection.astype('f4').flatten())
+        glMatrixMode(GL_MODELVIEW)
+        glLoadIdentity()
+        glMultMatrixf(view.astype('f4').flatten())
 
-        glUseProgram(self.program)
+        particle_texture.blit(0, 0)  # TODO: Use the texture for the particles
+        for x, y, z, particle in particles:
+            glPushMatrix()
+            glTranslatef(x, y, z)
+            particle.draw()
+            glPopMatrix()
 
-        glActiveTexture(GL_TEXTURE0)
-        glBindTexture(GL_TEXTURE_2D, self.texture)
+    @window.event
+    def on_key_press(symbol, modifiers):
+        if symbol == pyglet.window.key.ESCAPE:
+            window.close()
 
-        glUniformMatrix4fv(glGetUniformLocation(self.program, 'proj_mat'), 1, GL_FALSE, self.proj_mat)
-        glUniformMatrix4fv(glGetUniformLocation(self.program, 'view_mat'), 1, GL_FALSE, self.view_mat)
-        glUniformMatrix4fv(glGetUniformLocation(self.program, 'model_mat'), 1, GL_FALSE, self.model_mat)
+    pyglet.clock.schedule_interval(update_particles, 1 / 60.0)
+    pyglet.app.run()
 
-        glBindVertexArray(self.vao)
-        glDrawArrays(GL_POINTS, 0, len(self.particles))
-        glBindVertexArray(0)
+# Part 5: Define the particle system class
+class ParticleSystem:
+    def __init__(self, troy_file):
+        self.particle_list = []
+        self.frame_duration = 0.03  # default frame duration
+        self.frame_count = 0
+        self.loop = True
+        self.load_troy_file(troy_file)
 
-    def set_particles(self, particles):
+    def load_troy_file(self, troy_file):
+        # Load troy file and create particle objects
+        pass
+
+    def update(self, dt):
+        # Update particle positions and frames
+        pass
+
+    def draw(self):
+        # Draw particles
+        pass
+
+# Part 6: Load images and 3D models for the particles
+particle_images = {}
+particle_models = {}
+
+# Load particle images
+for image_file in os.listdir("particle_images"):
+    image_path = os.path.join("particle_images", image_file)
+    particle_images[image_file] = pyglet.image.load(image_path)
+
+# Load particle models
+for model_file in os.listdir("particle_models"):
+    model_path = os.path.join("particle_models", model_file)
+    # Load model and add it to particle_models dictionary
+    pass
+
+# Part 7: Create the pyglet window and define event handlers
+class ParticleViewerWindow(pyglet.window.Window):
+    def __init__(self, particle_system):
+        super().__init__(caption="Particle Viewer")
+        self.particle_system = particle_system
+        self.keys = key.KeyStateHandler()
+        self.push_handlers(self.keys)
+
+    def on_draw(self):
+        self.clear()
+        glMatrixMode(GL_PROJECTION)
+        glLoadIdentity()
+        glOrtho(0, self.width, 0, self.height, -1, 1)
+        glMatrixMode(GL_MODELVIEW)
+        glLoadIdentity()
+        self.particle_system.draw()
+
+    def on_key_press(self, symbol, modifiers):
+        if symbol == key.ESCAPE:
+            pyglet.app.exit()
+
+    def on_close(self):
+        pyglet.app.exit()
+
+# Part 8: Start the pyglet application
+if __name__ == "__main__":
+    troy_file = "particle_system.troy"
+    particle_system = ParticleSystem(troy_file)
+    window = ParticleViewerWindow(particle_system)
+    pyglet.clock.schedule_interval(particle_system.update, particle_system.frame_duration)
+    pyglet.app.run()
+
+# Create a window
+window = pyglet.window.Window(800, 600, resizable=True)
+
+# Create a 3D projection
+glMatrixMode(GL_PROJECTION)
+glLoadIdentity()
+gluPerspective(45.0, window.width / window.height, 0.1, 100.0)
+glMatrixMode(GL_MODELVIEW)
+
+# Set the camera position
+glLoadIdentity()
+gluLookAt(0.0, 0.0, -10.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0)
+
+# Enable depth testing
+glEnable(GL_DEPTH_TEST)
+
+# Set the clear color to black
+glClearColor(0.0, 0.0, 0.0, 0.0)
+
+# Load the particle texture
+particle_image = pyglet.resource.image('particle.png')
+particle_texture = particle_image.get_texture()
+particle_texture.width = particle_image.width
+particle_texture.height = particle_image.height
+glEnable(GL_TEXTURE_2D)
+
+# Set the blend function
+glEnable(GL_BLEND)
+glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
+
+# Create a batch for the particles
+particle_batch = pyglet.graphics.Batch()
+
+# Define the particle vertices
+particle_vertices = [
+    -1.0, -1.0, 0.0, 0.0, 0.0,
+    1.0, -1.0, 0.0, 1.0, 0.0,
+    1.0, 1.0, 0.0, 1.0, 1.0,
+    -1.0, 1.0, 0.0, 0.0, 1.0
+]
+
+# Define the particle indices
+particle_indices = [
+    0, 1, 2,
+    0, 2, 3
+]
+
+# Create a buffer for the particle vertices and indices
+particle_vbo = pyglet.graphics.vertexbuffer.create_buffer(len(particle_vertices) * 4, GL_ARRAY_BUFFER, GL_STATIC_DRAW)
+particle_vbo.bind()
+particle_vbo.set_data(particle_vertices)
+
+particle_ibo = pyglet.graphics.vertexbuffer.create_buffer(len(particle_indices) * 2, GL_ELEMENT_ARRAY_BUFFER, GL_STATIC_DRAW)
+particle_ibo.bind()
+particle_ibo.set_data(particle_indices)
+
+# Set the vertex and texture coordinate pointers
+glEnableClientState(GL_VERTEX_ARRAY)
+glEnableClientState(GL_TEXTURE_COORD_ARRAY)
+glVertexPointer(3, GL_FLOAT, 20, particle_vbo)
+glTexCoordPointer(2, GL_FLOAT, 20, particle_vbo + 12)
+
+# Define the particle update function
+def update_particles(dt):
+    # Update the particle positions and colors here
+    pass
+
+# Define the particle draw function
+def draw_particles():
+    # Set the particle texture
+    glBindTexture(GL_TEXTURE_2D, particle_texture.id)
+
+    # Set the particle color
+    glColor4f(1.0, 1.0, 1.0, 1.0)
+
+    # Draw the particles
+    particle_batch.draw()
+
+# Initialize the scene
+scene = bpy.context.scene
+scene.render.fps = fps
+scene.frame_end = frame_count
+scene.render.image_settings.file_format = 'PNG'
+scene.render.image_settings.color_mode = 'RGBA'
+scene.render.image_settings.color_depth = '16'
+scene.render.image_settings.compression = 15
+
+# Create a camera object and position it
+camera_data = bpy.data.cameras.new(name="Camera")
+camera_obj = bpy.data.objects.new(name="Camera", object_data=camera_data)
+scene.camera = camera_obj
+camera_obj.location = camera_position
+camera_obj.rotation_euler = camera_rotation
+
+# Create a light object and position it
+light_data = bpy.data.lights.new(name="Light", type='POINT')
+light_obj = bpy.data.objects.new(name="Light", object_data=light_data)
+light_obj.location = light_position
+light_obj.data.energy = light_intensity
+scene.collection.objects.link(light_obj)
+
+# Create a particle system and add particles
+particle_system = bpy.data.particlesystems.new(name="Particle System")
+particle_system.vertex_group_density = "density"
+particle_system.vertex_group_size = "size"
+emitter_object.modifiers.new(name="Particle System", type='PARTICLE_SYSTEM')
+emitter_object.particle_systems[-1] = particle_system
+particle_settings = particle_system.settings
+particle_settings.type = 'HAIR'
+particle_settings.use_advanced_hair = True
+particle_settings.count = particle_count
+particle_settings.hair_length = hair_length
+particle_settings.radius_scale = radius_scale
+particle_settings.rendered_steps = render_steps
+particle_settings.display_step = display_step
+particle_settings.hair_step = hair_step
+particle_settings.keyed_loops = keyed_loops
+particle_settings.use_close_tip = use_close_tip
+particle_settings.use_rotations = use_rotations
+particle_settings.rotation_mode = 'NONE'
+particle_settings.use_velocity_length = use_velocity_length
+particle_settings.use_emit_random = use_emit_random
+particle_settings.emit_random = emit_random
+particle_settings.hair_step = hair_step
+particle_settings.clump_factor = clump_factor
+particle_settings.clump_shape = clump_shape
+particle_settings.kink_amplitude = kink_amplitude
+particle_settings.kink_frequency = kink_frequency
+particle_settings.use_kink_shape = use_kink_shape
+particle_settings.kink_shape = kink_shape
+particle_settings.use_children = use_children
+particle_settings.child_type = 'SIMPLE'
+particle_settings.child_nbr = child_nbr
+particle_settings.child_radius = child_radius
+particle_settings.child_length = child_length
+particle_settings.child_roundness = child_roundness
+particle_settings.use_parent_particles = use_parent_particles
+particle_settings.use_hair_bspline = use_hair_bspline
+
+# Create a material and add a texture
+material = bpy.data.materials.new(name="Material")
+texture = bpy.data.textures.new(name="Texture", type='IMAGE')
+texture.image = bpy.data.images.load(image_path)
+texture_slot = material.texture_slots.add()
+texture_slot.texture = texture
+texture_slot.texture_coords = 'UV'
+texture_slot.blend_type = 'MULTIPLY'
+texture_slot.use_map_color_diffuse = True
+texture_slot.diffuse_color_factor = diffuse_color_factor
+texture_slot.use_map_alpha = True
+texture_slot.alpha_factor = alpha_factor
+texture_slot.use_map_density = True
+texture_slot.density_factor = density_factor
+material.diffuse_color = diffuse_color
+material.alpha = alpha
+material.specular_intensity = specular_intensity
+material.specular_hardness = specular_hardness
+material.use_shadeless = use_shadeless
+
+# Assign the material to the emitter object
+emitter_object.data.materials.append(material)
+
+class Particle:
+    def __init__(self, name, lifespan, emitter, geometry, texture):
+        self.name = name
+        self.lifespan = lifespan
+        self.emitter = emitter
+        self.geometry = geometry
+        self.texture = texture
+
+    def draw(self):
+        # Draw the particle using its geometry and texture
+        pass
+
+class ParticleEmitter:
+    def __init__(self, name, position, rotation, scale, particles):
+        self.name = name
+        self.position = position
+        self.rotation = rotation
+        self.scale = scale
         self.particles = particles
-        glBindBuffer(GL_ARRAY_BUFFER, self.vbo)
-        glBufferData(GL_ARRAY_BUFFER, len(particles) * 3 * 4, particles, GL_DYNAMIC_DRAW)
-        glBindBuffer(GL_ARRAY_BUFFER, 0)
 
-    def create_program(self):
-        vertex_shader = shaders.compileShader(
-            """
-            #version 330
-            layout(location = 0) in vec3 in_pos;
-            layout(location = 1) in vec2 in_uv;
-            layout(location = 2) in vec4 in_rgba;
-            out vec2 uv;
-            out vec4 rgba;
-            uniform mat4 proj_mat;
-            uniform mat4 view_mat;
-            uniform mat4 model_mat;
-            void main()
-            {
-                vec4 pos = vec4(in_pos, 1.0);
-                pos = model_mat * pos;
-                pos = view_mat * pos;
-                pos = proj_mat * pos;
-                gl_Position = pos;
-                uv = in_uv;
-                rgba = in_rgba;
-            }
-            """,
-            GL_VERTEX_SHADER,
-        )
+    def update(self, delta_time):
+        # Update the position and rotation of the emitter
+        # Update the particles of the emitter
+        pass
 
-        fragment_shader = shaders.compileShader(
-            """
-            #version 330
-            in vec2 uv;
-            in vec4 rgba;
-            out vec4 frag_color;
-            uniform sampler2D texture_sampler;
-            void main()
-            {
-                frag_color = texture(texture_sampler, uv) * rgba;
-            }
-            """,
-            GL_FRAGMENT_SHADER,
-        )
+class ParticleSystem:
+    def __init__(self, name, emitters):
+        self.name = name
+        self.emitters = emitters
 
-        program = shaders.compileProgram(vertex_shader, fragment_shader)
-        return program
+    def update(self, delta_time):
+        # Update all the emitters of the system
+        pass
 
-    def load_texture(self, filename):
-        img = Image.open(filename)
-        img_data = np.array(list(img.getdata()), np.uint8)
-        width, height = img.size
-        texture = glGenTextures(1)
-        glBindTexture(GL_TEXTURE_2D, texture)
-        glPixelStorei(GL_UNPACK_ALIGNMENT, 1)
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, img_data)
-        glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR)
-        glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR)
-        glGenerateMipmap(GL_TEXTURE_2D)
-        glBindTexture(GL_TEXTURE_2D, 0)
-        return texture, width, height
+    def draw(self):
+        # Draw all the particles of the system
+        pass
 
-    def initializeGL(self):
-        self.load_shader()
-        glEnable(GL_DEPTH_TEST)
-        glEnable(GL_BLEND)
-        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
-        glClearColor(0.1, 0.1, 0.1, 1.0)
-        self.timer = QTimer()
-        self.timer.timeout.connect(self.update)
-        self.timer.start(16)
+def load_troy_file(filename):
+    # Load the troy file and create a ParticleSystem
+    pass
 
-    def resizeGL(self, w, h):
-        glViewport(0, 0, w, h)
+def main():
+    # Load the troy file and create a ParticleSystem
+    # Create a window and a camera
+    # Load the 3D models and textures of the particles
+    # Start the main loop
+    pass
 
-    def paintGL(self):
+if __name__ == '__main__':
+    main()
+
+def create_particle_geometry(attributes):
+    """Create the geometry for the particle based on its attributes"""
+    # TODO: Implement the function to create particle geometry
+    pass
+
+def load_particle_texture(texture_path):
+    """Load the texture image for the particle"""
+    # TODO: Implement the function to load particle texture
+    pass
+
+def create_particle_mesh(geometry, texture):
+    """Create the particle mesh using the given geometry and texture"""
+    # TODO: Implement the function to create particle mesh
+    pass
+
+def animate_particle(mesh, attributes):
+    """Animate the particle mesh based on its attributes"""
+    # TODO: Implement the function to animate particle mesh
+    pass
+
+# Parse command line arguments
+parser = argparse.ArgumentParser(description='Preview a League of Legends particle')
+parser.add_argument('particle', type=str, help='path to particle .troy file')
+parser.add_argument('--model', type=str, help='path to 3D model file')
+parser.add_argument('--texture', type=str, help='path to particle texture image file')
+args = parser.parse_args()
+
+# Load particle data from file
+with open(args.particle, 'rb') as f:
+    particle_data = troybin.read(f)
+
+# Create particle geometry
+geometry = create_particle_geometry(particle_data['Attributes'])
+
+# Load particle texture
+if args.texture:
+    texture = load_particle_texture(args.texture)
+else:
+    texture = None
+
+# Create particle mesh
+mesh = create_particle_mesh(geometry, texture)
+
+# Animate particle mesh
+animate_particle(mesh, particle_data['Attributes'])
+
+# Import models
+model_folder = "models/"
+model_files = {"default": "sphere.obj", "sprite": "sprite.obj"}
+models = {}
+for key, value in model_files.items():
+    model_path = os.path.join(model_folder, value)
+    if os.path.exists(model_path):
+        with open(model_path, "r") as f:
+            models[key] = f.read()
+
+# Load textures
+texture_folder = "textures/"
+texture_files = {"default": "default.png"}
+textures = {}
+for key, value in texture_files.items():
+    texture_path = os.path.join(texture_folder, value)
+    if os.path.exists(texture_path):
+        textures[key] = imageio.imread(texture_path)
+
+def main(args):
+    parser = argparse.ArgumentParser(description='Preview .troy files in 3D')
+    parser.add_argument('infile', type=str, help='input .troy file name')
+    parser.add_argument('--imgdir', type=str, default='', help='directory containing images referenced by the .troy file')
+    args = parser.parse_args()
+
+    if args.imgdir:
+        pyglet.resource.path.append(args.imgdir)
+        pyglet.resource.reindex()
+
+    window = pyglet.window.Window(800, 600, resizable=True)
+
+    def on_resize(width, height):
+        glViewport(0, 0, width, height)
+        glMatrixMode(GL_PROJECTION)
+        glLoadIdentity()
+        gluPerspective(60, float(width)/height, 0.1, 1000)
+        glMatrixMode(GL_MODELVIEW)
+        return pyglet.event.EVENT_HANDLED
+
+    @window.event
+    def on_draw():
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
-        if self.texture_id is not None and self.particle_buffer is not None:
-            glUseProgram(self.shader_program)
-            glBindBuffer(GL_ARRAY_BUFFER, self.particle_buffer)
-            glEnableVertexAttribArray(0)
-            glEnableVertexAttribArray(1)
-            glEnableVertexAttribArray(2)
-            glEnableVertexAttribArray(3)
-            glEnableVertexAttribArray(4)
-            glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 64, ctypes.c_void_p(0))
-            glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 64, ctypes.c_void_p(12))
-            glVertexAttribPointer(2, 4, GL_UNSIGNED_BYTE, GL_TRUE, 64, ctypes.c_void_p(24))
-            glVertexAttribPointer(3, 2, GL_FLOAT, GL_FALSE, 64, ctypes.c_void_p(28))
-            glVertexAttribPointer(4, 4, GL_FLOAT, GL_FALSE, 64, ctypes.c_void_p(36))
-            glUniformMatrix4fv(self.view_matrix_location, 1, GL_FALSE, self.view_matrix)
-            glUniformMatrix4fv(self.projection_matrix_location, 1, GL_FALSE, self.projection_matrix)
-            glBindTexture(GL_TEXTURE_2D, self.texture_id)
-            glDrawArrays(GL_POINTS, 0, len(self.particles))
-            glBindTexture(GL_TEXTURE_2D, 0)
-            glDisableVertexAttribArray(0)
-            glDisableVertexAttribArray(1)
-            glDisableVertexAttribArray(2)
-            glDisableVertexAttribArray(3)
-            glDisableVertexAttribArray(4)
+        glLoadIdentity()
+        glTranslatef(0, 0, -5)
+        glRotatef(-90, 1, 0, 0)
+        glRotatef(-90, 0, 0, 1)
+        glScalef(0.01, 0.01, 0.01)
+        batch.draw()
 
-    def load_troy(self, filename):
-        troy = TroyLoader(filename)
-        self.emitters = troy.e
-        self.particles = troy.p
-        for particle in self.particles:
-            self.load_texture(particle['meshtex'])
+    @window.event
+    def on_key_press(symbol, modifiers):
+        if symbol == pyglet.window.key.ESCAPE:
+            pyglet.app.exit()
 
-    def initializeGL(self):
-        glEnable(GL_BLEND)
-        glEnable(GL_TEXTURE_2D)
-        glEnable(GL_DEPTH_TEST)
-        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
-        glClearColor(0.0, 0.0, 0.0, 1.0)
+    @window.event
+    def on_mouse_drag(x, y, dx, dy, buttons, modifiers):
+        if buttons & pyglet.window.mouse.LEFT:
+            glRotatef(dx, 0, 1, 0)
+            glRotatef(dy, 1, 0, 0)
 
-        self.load_shaders()
-        self.load_buffers()
+    ibin = read_troy(args.infile)
+    fix_troy(ibin)
+    textures = load_textures(ibin)
 
-    def load_shaders(self):
-        vertex_shader_source = """
-        #version 330
-        in vec3 vertex_position;
-        in vec4 vertex_color;
-        in vec2 vertex_texcoord;
+    batch = pyglet.graphics.Batch()
+    for i, emitter in enumerate(ibin["EMITTERS"]):
+        group = pyglet.graphics.Group()
+        vertices, colors, tex_coords = create_particles(emitter, textures)
+        particle_count = len(emitter["POSITIONS"])
+        if particle_count:
+            batch.add_indexed(particle_count, pyglet.gl.GL_TRIANGLES, group, emitter["INDICES"], ('v3f/static', vertices), ('c3f/static', colors), ('t2f/static', tex_coords))
+    
+    glEnable(GL_BLEND)
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
+    glEnable(GL_DEPTH_TEST)
+    glEnable(GL_TEXTURE_2D)
 
-        out vec4 fragment_color;
-        out vec2 fragment_texcoord;
+    pyglet.app.run()
 
-        uniform mat4 projection;
-        uniform mat4 view;
-        uniform mat4 model;
-
-        void main() {
-            gl_Position = projection * view * model * vec4(vertex_position, 1.0);
-            fragment_color = vertex_color;
-            fragment_texcoord = vertex_texcoord;
-        }
-        """
-
-        fragment_shader_source = """
-        #version 330
-        in vec4 fragment_color;
-        in vec2 fragment_texcoord;
-
-        out vec4 color;
-
-        uniform sampler2D texture_sampler;
-
-        void main() {
-            color = texture(texture_sampler, fragment_texcoord) * fragment_color;
-        }
-        """
-
-        self.vertex_shader = shaders.compileShader(vertex_shader_source, GL_VERTEX_SHADER)
-        self.fragment_shader = shaders.compileShader(fragment_shader_source, GL_FRAGMENT_SHADER)
-
-        self.shader_program = shaders.compileProgram(self.vertex_shader, self.fragment_shader)
-
-        self.projection_matrix_uniform = glGetUniformLocation(self.shader_program, "projection")
-        self.view_matrix_uniform = glGetUniformLocation(self.shader_program, "view")
-        self.model_matrix_uniform = glGetUniformLocation(self.shader_program, "model")
-
-        self.vertex_position_attrib = glGetAttribLocation(self.shader_program, "vertex_position")
-        self.vertex_color_attrib = glGetAttribLocation(self.shader_program, "vertex_color")
-        self.vertex_texcoord_attrib = glGetAttribLocation(self.shader_program, "vertex_texcoord")
-
-    def load_buffers(self):
-        e = np.zeros((len(self.e), 8), dtype=np.float32)
-        for i, emitter in enumerate(self.e):
-            e[i] = [emitter['rate'], emitter['life'], emitter['timeoffset'], 1 if emitter['disabled'] else 0, 
-                    emitter['rgba'][0]/255, emitter['rgba'][1]/255, emitter['rgba'][2]/255, emitter['rgba'][3]/255]
-        p = np.zeros((len(self.p), 63), dtype=np.float32)
-        for i, particle in enumerate(self.p):
-            p[i] = [particle['x'][0], particle['x'][1], particle['x'][2], particle['scale'][0], particle['scale'][1], particle['scale'][2],
-                    particle['rgba'][0]/255, particle['rgba'][1]/255, particle['rgba'][2]/255, particle['rgba'][3]/255, 
-                    particle['life'], particle['linger'], particle['rotation1'][0], particle['rotation1'][1], particle['rotation1'][2], 
-                    particle['rotation2'][0], particle['rotation2'][1], particle['rotation2'][2], particle['unknown1'], particle['unknown2'],
-                    1 if particle['backfaceon'] else 0, particle['bindtoemitter'][0], particle['bindtoemitter'][1], particle['type'], 
-                    particle['fresnel'], particle['fresnel_color'][0]/255, particle['fresnel_color'][1]/255, particle['fresnel_color'][2]/255, 
-                    particle['fresnel_color'][3]/255, particle['scaleP1'][0], particle['scaleP1'][1], particle['scaleP2'][0], 
-                    particle['scaleP2'][1], particle['lifeP1'][0], particle['lifeP1'][1], particle['lifeP2'][0], particle['lifeP2'][1], 
-                    particle['quadrot'][0], particle['quadrot'][1], particle['quadrot'][2], particle['quadrotYP1'][0], 
-                    particle['quadrotYP1'][1], particle['quadrotYP2'][0], particle['quadrotYP2'][1], particle['unknown3'], 
-                    particle['unknown4'], particle['unknown5'], particle['xrgba'][0], particle['xrgba'][1], particle['xrgba'][2], 
-                    particle['xrgba'][3], particle['xrgba1'][0], particle['xrgba1'][1], particle['xrgba1'][2], particle['xrgba1'][3], 
-                    particle['xrgba1'][4], particle['xrgba2'][0], particle['xrgba2'][1], particle['xrgba2'][2], particle['xrgba2'][3], 
-                    particle['xrgba2'][4], particle['xrgba3'][0], particle['xrgba3'][1], particle['xrgba3'][2], particle['xrgba3'][3], 
-                    particle['xrgba3'][4], particle['xrgba4'][0], particle['xrgba4'][1], particle['xrgba4'][2], particle['xrgba4'][3], 
-                    particle['xrgba4'][4], particle['xrgba5'][0], particle['xrgba5'][1], particle['xrgba5'][2], particle['xrgba5'][3],
-                    particle['xrgba5'][4], particle['xrgba6'][0], particle['xrgba6'][1], particle['mesh'], particle['meshtex']]
-            
-            # Build the vertices and indices arrays for OpenGL buffers
-            vertices = []
-            indices = []
-            v_idx = 0
-            for i, p in enumerate(self.tloader.p):
-                mesh = self.tloader.meshes[p['mesh']]
-                mesh_verts = mesh['vertices']
-                mesh_inds = mesh['indices']
-                for j in range(mesh['num_verts']):
-                    v_idx = len(vertices)
-                    vertex = mesh_verts[j]
-                    scale = p['scale']
-                    vertices.append([
-                        p['x'][0] + vertex[0] * scale[0],
-                        p['x'][1] + vertex[1] * scale[1],
-                        p['x'][2] + vertex[2] * scale[2],
-                        p['rgba'][0], p['rgba'][1], p['rgba'][2], p['rgba'][3],
-                        p['quadrot'][0], p['quadrot'][1], p['quadrot'][2],
-                        p['quadrotYP1'][0], p['quadrotYP2'][0]
-                    ])
-                    if j < mesh['num_verts'] - 2:
-                        indices.append([v_idx, v_idx + j + 1, v_idx + j + 2])
-                if self.tloader.textures.get(p['meshtex']):
-                    texture = self.tloader.textures[p['meshtex']]
-                    tex_id = texture['id']
-                    tex_w = texture['width']
-                    tex_h = texture['height']
-                    for j in range(mesh['num_verts']):
-                        vertices[v_idx + j].append(mesh_verts[j][3] * tex_w)
-                        vertices[v_idx + j].append(mesh_verts[j][4] * tex_h)
-                        vertices[v_idx + j].append(texture['tx1'])
-                        vertices[v_idx + j].append(texture['ty1'])
-                        vertices[v_idx + j].append(texture['tx2'])
-                        vertices[v_idx + j].append(texture['ty2'])
-                else:
-                    for j in range(mesh['num_verts']):
-                        vertices[v_idx + j].append(0)
-                        vertices[v_idx + j].append(0)
-                        vertices[v_idx + j].append(0)
-                        vertices[v_idx + j].append(0)
-                        vertices[v_idx + j].append(0)
-                        vertices[v_idx + j].append(0)
-            
-            # Convert the vertices and indices arrays to NumPy arrays and create the OpenGL buffers
-            vdata = np.array(vertices, dtype=np.float32)
-            idata = np.array(indices, dtype=np.uint32)
-            vbo, ibo = glGenBuffers(2)
-            self.buffers = {'vbo': vbo, 'ibo': ibo}
-            glBindBuffer(GL_ARRAY_BUFFER, vbo)
-            glBufferData(GL_ARRAY_BUFFER, vdata, GL_STATIC_DRAW)
-            glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo)
-            glBufferData(GL_ELEMENT_ARRAY_BUFFER, idata, GL_STATIC_DRAW)
-            self.buffers['num_indices'] = len(idata)
-
-
+if __name__ == '__main__':
+    main(sys.argv[1:])
