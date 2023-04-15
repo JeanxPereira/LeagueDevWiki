@@ -1,0 +1,48 @@
+[System]
+GroupPart1="chain_beam"
+GroupPart2="chain_beam_pull"
+SimulateEveryFrame=1
+SimulateWhileOffScreen=1
+group-vis=2500.0
+
+[chain_beam]
+e-life=0.25
+e-rate=10.0
+e-rgba=255 149 0 255
+e-tilesize=-1.0 100.0 0.0
+e-uvoffset=1.0 0.0
+e-uvoffsetXP1=0.0 0.0
+e-uvoffsetXP2=1.0 1.0
+p-bindtoemitter=1.0 0.0
+p-life=0.25
+p-linger=0.0
+p-scale=100.0 0.0 0.0
+p-texture="DarkstarMode_Chainbeam_Thresh_link.dds"
+p-type=6
+p-uvscroll-rgb=0.25 0.0
+p-xscale=1.0 1.0 1.0
+p-xscale1=0.0 0.1 0.1 0.1
+p-xscale2=0.1 2.0 2.0 2.0
+
+[chain_beam_pull]
+e-life=0.25
+e-rate=10.0
+e-rgba=247 167 6 255
+e-tilesize=-1.0 200.0 0.0
+e-uvoffset=1.0 0.0
+e-uvoffsetXP1=0.0 0.0
+e-uvoffsetXP2=1.0 1.0
+p-bindtoemitter=1.0 0.0
+p-life=0.25
+p-linger=0.0
+p-scale=20.0 0.0 0.0
+p-texture="DarkstarMode_Chainbeam_Thresh_link.dds"
+p-type=6
+p-uvscroll-rgb=0.8 0.0
+p-xscale=1.0 1.0 1.0
+p-xscale1=0.0 0.1 0.1 0.1
+p-xscale2=0.1 2.0 2.0 2.0
+single-particle=1
+
+;UNKNOWN_HASH 1391270929="color-hold.dds"
+;UNKNOWN_HASH 3861064711="color-hold.dds"

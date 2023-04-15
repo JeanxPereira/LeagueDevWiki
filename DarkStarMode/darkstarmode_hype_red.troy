@@ -1,0 +1,41 @@
+[RingOut]
+e-rate=1.2000000000000002
+p-bindtoemitter=1.0 1.0
+p-life=0.4
+p-linger=0.0
+p-quadrot=360.0 0.0 0.0
+p-quadrotXP1=0.0 -1.0
+p-quadrotXP2=1.0 1.0
+p-rotvel=540.0 0.0 0.0
+p-rotvelXP1=0.0 0.5
+p-rotvelXP2=1.0 1.0
+p-scale=291.5 1.100000023841858 1.100000023841858
+p-texture="DarkstarMode_CenterDarkstar_Ring01.dds"
+p-vel=1.0 1.0 1.0
+p-velXP1=0.0 -1.0
+p-velXP2=1.0 1.0
+p-velYP1=0.0 -1.0
+p-velYP2=1.0 1.0
+p-velZP1=0.0 -1.0
+p-velZP2=1.0 1.0
+p-xrgba=1.0 1.0 1.0 1.0
+p-xrgba1=0.0 1.0 0.643137 0.65098 0.0
+p-xrgba2=0.2 1.0 0.482353 0.309804 1.0
+p-xrgba3=0.6 1.0 0.019608 0.019608 1.0
+p-xrgba4=1.0 1.0 0.0 0.0 0.0
+p-xscale=1.0 1.0 1.0
+p-xscale1=0.0 1.0 0.0 0.0
+p-xscale2=0.75 1.2999999523162842 0.0 0.0
+p-xscale3=1.0 1.5 0.0 0.0
+pass=25
+rendermode=4
+uniformscale=1
+
+[System]
+GroupPart1="RingOut"
+GroupPart1Importance="High"
+KeepOrientationAfterSpellCast=1
+SimulateEveryFrame=1
+SimulateWhileOffScreen=1
+group-vis=2500.0
+

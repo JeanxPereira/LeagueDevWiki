@@ -1,0 +1,54 @@
+[Cupid_Trail_Alpha]
+e-life=4.0
+e-rate=120.0
+e-trail-cutoff=800.0
+p-life=0.4
+p-linger=0.0
+p-scale=50.0 0.0 0.0
+p-texture="DarkstarMode_RoundEndVacuum_Child2Varus_Skin04_BA_trail.DDS"
+p-trailmode=1
+p-type=5
+p-xrgba=1.0 1.0 1.0 1.0
+p-xrgba1=0.0 0.705882 0.0 0.188235 0.294118
+p-xrgba2=0.5 0.854902 0.0 0.6 0.8
+p-xrgba3=1.0 0.941176 0.0 0.941176 0.0
+p-xscale=1.0 1.0 1.0
+p-xscale1=0.0 0.0 0.0 0.0
+p-xscale2=0.1 3.0 0.0 0.0
+p-xscale3=0.5 1.0 0.0 0.0
+p-xscale4=1.0 0.0 0.0 0.0
+rendermode=4
+
+[SparkleTrail1]
+e-rate=10.0
+p-colortype=1 1
+p-drag=3.0 3.0 3.0
+p-life=0.5
+p-lifeP1=0.0 0.7000000000000001
+p-lifeP2=0.8999999761581421 1.0
+p-lifeP3=1.0 2.0
+p-linger=0.2
+p-scale=240.0 240.0 150.0
+p-scaleXP1=0.0 0.5
+p-scaleXP2=1.0 1.0
+p-texture="DarkstarMode_RoundEndVacuum_Child2Varus_Skin04_R_Mis_Sparkles.dds"
+p-vel=0.0 0.0 -200.0
+p-worldaccel=0.0 -100.0 0.0
+p-xrgba=1.0 1.0 1.0 1.0
+p-xrgba1=0.0 1.0 1.0 1.0 1.0
+p-xrgba2=0.5 1.0 1.0 1.0 1.0
+p-xrgba3=1.0 0.3 0.0 1.0 1.0
+p-xscale=1.0 1.0 1.0
+p-xscale1=0.0 0.30000000000000004 0.30000000000000004 0.30000000000000004
+p-xscale2=0.20000000298023224 0.8999999761581421 0.8999999761581421 0.8999999761581421
+p-xscale3=0.30000000000000004 1.0 1.0 1.0
+p-xscale4=0.7000000000000001 0.2 0.2 0.2
+p-xscale5=1.0 0.0 0.0 0.0
+
+[System]
+GroupPart1="Cupid_Trail_Alpha"
+GroupPart2="SparkleTrail1"
+SimulateEveryFrame=1
+
+;UNKNOWN_HASH 2791450778=1
+;UNKNOWN_HASH 3780629901=800

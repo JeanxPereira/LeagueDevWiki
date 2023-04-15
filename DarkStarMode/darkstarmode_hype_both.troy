@@ -1,0 +1,24 @@
+[System]
+GroupPart1="blue"
+GroupPart2="red"
+KeepOrientationAfterSpellCast=1
+SimulateEveryFrame=1
+SimulateWhileOffScreen=1
+group-vis=2500.0
+
+[blue]
+ChildParticleName="DarkstarMode_Hype_Blue.troy"
+p-bindtoemitter=1.0 1.0
+p-life=-1.0
+p-linger=0.0
+single-particle=1
+
+[red]
+ChildParticleName="DarkstarMode_Hype_Red.troy"
+e-life=-0.5799999833106995
+e-timeoffset=0.41999998688697815
+p-bindtoemitter=1.0 1.0
+p-life=-1.0
+p-linger=0.0
+single-particle=1
+

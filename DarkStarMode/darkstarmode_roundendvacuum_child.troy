@@ -1,0 +1,40 @@
+[System]
+GroupPart1="Trail"
+SimulateEveryFrame=1
+SoundOnCreate="Play_sfx_OrianaSkin06_OrianaDetonateCommand_buffactivate"
+
+[Trail]
+e-life=1.5
+e-rate=120.0
+e-rotation1=1.0
+e-rotation1-axis=0.0 1.0 0.0
+e-rotation11=0.0 180.0
+e-rotation12=1.0 1380.0
+e-tilesize=900.0 0.0 0.0
+e-trail-cutoff=800.0
+p-backfaceon=1
+p-life=0.44999998807907104
+p-linger=0.0
+p-local-orient=1
+p-offset=0.0 20.0 0.0
+p-scale=120.0 0.0 0.0
+p-scale1=0.0 0.2 0.2 0.2
+p-scale2=0.2 1.0 1.0 1.0
+p-scale3=0.3499999940395355 0.0 0.0 0.0
+p-texture="DarkstarMode_RoundEndVacuum_ChildOrianna_Skin06_buff_trail.dds"
+p-trailmode=1
+p-type=5
+p-uvscroll-rgb=0.2 0.0
+p-uvscroll-rgbXP1=0.0 0.30000000000000004
+p-uvscroll-rgbXP2=1.0 1.5
+p-xrgba=1.0 1.0 1.0 1.0
+p-xrgba1=0.0 1.0 1.0 1.0 0.0
+p-xrgba2=0.2 0.686275 0.45098 0.784314 1.0
+p-xrgba3=1.0 0.278431 0.003922 0.003922 0.0
+p-xscale=1.0 1.0 1.0
+p-xscale1=0.0 0.0 0.0 0.0
+p-xscale2=0.1 1.0 1.0 1.0
+p-xscale3=1.0 0.0 0.0 0.0
+rendermode=4
+
+;UNKNOWN_HASH 2877047700=800

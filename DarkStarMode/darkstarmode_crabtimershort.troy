@@ -1,0 +1,30 @@
+[System]
+GroupPart1="circletimer"
+GroupPart1Importance="High"
+SimulateEveryFrame=1
+
+[circletimer]
+e-life=0.1
+e-local-orient=0
+e-rate=1.0
+e-rgba=255 144 65 175
+flag-disable-z=1
+p-backfaceon=1
+p-bindtoemitter=1.0 0.0
+p-colorscale=0.30000000000000004 0.6000000000000001
+p-life=5.0
+p-linger=0.0
+p-mesh="circletimer.sco"
+p-meshtex="white-black.dds"
+p-quadrot=90.0 0.0 180.0
+p-scale=20.0 20.0 0.0
+p-type=3
+p-uvscroll-rgb=0.1 0.0
+p-xrgba=1.0 1.0 1.0 1.0
+p-xrgba1=0.0 1.0 1.0 1.0 0.0
+p-xrgba2=0.01 1.0 1.0 1.0 0.749004
+p-xrgba3=0.7 1.0 1.0 1.0 1.0
+pass=1000
+rendermode=4
+single-particle=1
+

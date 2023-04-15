@@ -1,0 +1,55 @@
+[System]
+GroupPart1="chain_beam"
+GroupPart2="chain_beam_pull"
+SimulateEveryFrame=1
+
+[chain_beam]
+e-life=0.25
+e-rate=10.0
+e-rgba=255 98 19 255
+e-tilesize=-1.0 100.0 0.0
+e-uvoffset=1.0 0.0
+e-uvoffsetXP1=0.0 0.0
+e-uvoffsetXP2=1.0 1.0
+p-bindtoemitter=1.0 0.0
+p-life=0.25
+p-linger=0.0
+p-scale=100.0 0.0 0.0
+p-texture="DarkstarMode_HookHitsStar_chainbeamThresh_Skin05_Chain_01.dds"
+p-type=6
+p-uvscroll-rgb=0.25 0.0
+p-xrgba=1.0 1.0 1.0 1.0
+p-xrgba1=0.0 1.0 1.0 1.0 1.0
+p-xrgba2=1.0 1.0 1.0 1.0 0.0
+p-xscale=1.0 1.0 1.0
+p-xscale1=0.0 0.1 0.1 0.1
+p-xscale2=0.1 2.0 2.0 2.0
+pass=1
+rendermode=4
+
+[chain_beam_pull]
+e-life=0.25
+e-rate=10.0
+e-rgba=249 73 255 255
+e-tilesize=-1.0 200.0 0.0
+e-timeoffset=0.6000000000000001
+e-uvoffset=1.0 0.0
+e-uvoffsetXP1=0.0 0.0
+e-uvoffsetXP2=1.0 1.0
+p-bindtoemitter=1.0 0.0
+p-life=0.25
+p-linger=0.0
+p-scale=100.0 0.0 0.0
+p-texdiv=2.0 1.0
+p-texture="DarkstarMode_HookHitsStar_chainbeamThresh_Skin05_Chain_01.dds"
+p-type=6
+p-uvscroll-rgb=0.8 0.0
+p-xrgba=1.0 1.0 1.0 1.0
+p-xrgba1=0.0 1.0 1.0 1.0 1.0
+p-xrgba2=1.0 1.0 1.0 1.0 0.0
+p-xscale=1.0 1.0 1.0
+p-xscale1=0.0 0.1 0.1 0.1
+p-xscale2=0.1 2.0 2.0 2.0
+rendermode=1
+single-particle=1
+

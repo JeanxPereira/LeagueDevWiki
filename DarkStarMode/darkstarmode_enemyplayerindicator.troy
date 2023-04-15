@@ -1,0 +1,29 @@
+[Ring_Enemy1]
+e-local-orient=0
+e-rate=0.3499999940395355
+flag-disable-z=1
+p-bindtoemitter=1.0 1.0
+p-flexscale=0.004000000189989805
+p-life=4.0
+p-quadrot=90.0 0.0 0.0
+p-rotvel=0.0 10.0 0.0
+p-rotvelYP1=0.0 -1.0
+p-rotvelYP2=0.5 -0.699999988079071
+p-rotvelYP3=0.5099999904632568 0.699999988079071
+p-rotvelYP4=1.0 1.0
+p-scale=135.0 1.0 1.0
+p-simpleorient=2
+p-texture="blast_nova_bunny_04.dds"
+p-type=1
+p-xrgba=1.0 0.0 0.0 0.4
+p-xrgba1=0.0 1.0 1.0 1.0 0.0
+p-xrgba2=0.5 1.0 1.0 1.0 1.0
+p-xrgba3=1.0 1.0 1.0 1.0 0.0
+uniformscale=1
+
+[System]
+GroupPart1="Ring_Enemy1"
+GroupPart1Importance="High"
+SimulateEveryFrame=1
+
+;UNKNOWN_HASH 776756507=1

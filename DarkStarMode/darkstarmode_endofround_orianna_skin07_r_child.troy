@@ -1,0 +1,89 @@
+[FlareBack]
+e-rate=5.0
+p-bindtoemitter=1.0 1.0
+p-life=0.8
+p-linger=0.0
+p-local-orient=1
+p-quadrot=360.0 0.0 0.0
+p-quadrotXP1=0.0 -1.0
+p-quadrotXP2=1.0 1.0
+p-rotvel=100.0 0.0 0.0
+p-scale=120.0 20.0 20.0
+p-texture="DarkStarMode_EndOfRound_Orianna_Skin07_Z_LensFlare_02desat.dds"
+p-xrgba=1.0 1.0 1.0 1.0
+p-xrgba1=0.0 1.0 0.709804 0.309804 0.0
+p-xrgba2=0.4 1.0 0.478431 0.27451 1.0
+p-xrgba3=0.5 1.0 1.0 1.0 1.0
+p-xrgba4=1.0 1.0 1.0 1.0 0.0
+p-xscale=1.0 1.0 1.0
+p-xscale1=0.0 0.8999999761581421 0.8999999761581421 0.8999999761581421
+p-xscale2=0.30000000000000004 1.0 1.0 1.0
+p-xscale3=1.0 0.2 0.2 0.2
+pass=-10
+rendermode=4
+uniformscale=1
+
+[FlareTip]
+e-life=6.0
+e-rate=10.0
+e-rgba=255 255 255 151
+p-bindtoemitter=1.0 1.0
+p-life=0.4
+p-linger=0.0
+p-local-orient=1
+p-quadrot=360.0 0.0 0.0
+p-quadrotXP1=0.0 -1.0
+p-quadrotXP2=1.0 1.0
+p-rotvel=100.0 0.0 0.0
+p-scale=80.0 20.0 20.0
+p-texture="DarkStarMode_EndOfRound_Orianna_Skin07_Z_LensFlare_02desat.dds"
+p-vel=0.0 -50.0 0.0
+p-xrgba=1.0 1.0 1.0 1.0
+p-xrgba1=0.0 1.0 0.764706 0.494118 1.0
+p-xrgba2=0.4 1.0 0.666667 0.0 1.0
+p-xrgba3=0.5 1.0 0.333333 0.0 1.0
+p-xrgba4=1.0 0.666667 0.0 1.0 0.0
+p-xscale=1.0 1.0 1.0
+p-xscale1=0.0 0.5 0.5 0.5
+p-xscale2=1.0 2.0 2.0 2.0
+pass=10
+rendermode=4
+uniformscale=1
+
+[System]
+GroupPart1="FlareTip"
+GroupPart1Importance="High"
+GroupPart2="FlareBack"
+GroupPart2Importance="High"
+GroupPart3="TrailTop"
+SimulateEveryFrame=1
+
+[TrailTop]
+e-life=1.0
+e-rate=400.0
+e-rgba=255 255 255 255
+e-rgba1=0.0 1.0 1.0 1.0 0.0
+e-rgba2=0.1 1.0 1.0 1.0 1.0
+e-rgba3=1.0 1.0 0.666667 1.0 1.0
+e-tilesize=0.009999999776482582 0.0 0.0
+p-life=0.2
+p-local-orient=1
+p-scale=30.0 0.0 0.0
+p-scale1=0.7000000000000001 1.0 1.0 1.0
+p-scale2=1.0 0.0 0.0 0.0
+p-texdiv=40000.0 1.0
+p-texture="DarkStarMode_EndOfRound_Orianna_Skin07_Z_Ribbon_01.dds"
+p-trailmode=1
+p-type=4
+p-uvscroll-rgb=0.5 0.0
+p-xrgba=1.0 1.0 1.0 1.0
+p-xrgba1=0.0 1.0 1.0 0.0 1.0
+p-xrgba2=0.02 1.0 0.74902 0.0 1.0
+p-xrgba3=0.3 0.537255 0.007843 1.0 0.709804
+p-xrgba4=1.0 0.666667 0.0 1.0 0.0
+p-xscale=1.0 1.0 1.0
+p-xscale1=0.4 1.0 1.0 1.0
+p-xscale2=1.0 0.30000000000000004 0.30000000000000004 0.30000000000000004
+pass=-6
+rendermode=4
+
